@@ -116,6 +116,11 @@ function getUserById(id, callback) {
     });
 }
 
+/**
+ * Retrieves a user from the database by their username.
+ * @param {string} username - The username of the user to retrieve.
+ * @param {function} callback - The callback function to be called with the retrieved user or an error.
+ */
 function getUserByUsername(username, callback) {
     db.get(`SELECT Users.*, Roles.name AS roleName FROM Users
             LEFT JOIN UserRoles ON Users.id = UserRoles.userId
@@ -130,6 +135,11 @@ function getUserByUsername(username, callback) {
     });
 }
 
+/**
+ * Retrieves a user from the database by their username.
+ * @param {string} username - The username of the user to retrieve.
+ * @returns {Promise<User>} A promise that resolves with the user object if found, or rejects with an error if not found.
+ */
 async function asyncGetUserByUsername(username) {
     return new Promise((resolve, reject) => {
         db.get(`SELECT Users.*, Roles.name AS roleName FROM Users
@@ -151,7 +161,7 @@ async function asyncGetUserByUsername(username) {
  * @param {string} email - The email of the user to retrieve.
  * @param {function} callback - The callback function to be called with the retrieved user.
  * @param {Error} callback.err - An error object if an error occurred during the retrieval process, null otherwise.
- * @param {Object} callback.row - The retrieved user object from the database.
+ * @param {Object} callback.usr - The retrieved db record as a User object.
  */
 function getUserByEmail(email, callback) {
     db.get(`SELECT Users.*, Roles.name AS roleName FROM Users
@@ -167,6 +177,11 @@ function getUserByEmail(email, callback) {
     });
 }
 
+/**
+ * Retrieves a user from the database based on their email.
+ * @param {string} email - The email of the user to retrieve.
+ * @returns {Promise<User>} A promise that resolves with the user object if found, or rejects with an error if not found.
+ */
 async function asyncGetUserByEmail(email) {
     return new Promise((resolve, reject) => {
         db.get(`SELECT Users.*, Roles.name AS roleName FROM Users
