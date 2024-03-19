@@ -10,6 +10,9 @@ const sqlite3 = require('sqlite3').verbose();
 // Create a new database connection
 const db = new sqlite3.Database('data.sqlite');
 
+const User = require('./user');
+const Animal = require('./animal');
+
 // Create the Users table if it doesn't exist
 db.run(`CREATE TABLE IF NOT EXISTS Users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -107,7 +110,8 @@ function getUserById(id, callback) {
         if (err) {
             callback(err);
         } else {
-            callback(null, row);
+            const usr = User.loadUserFromDBRecord(row);
+            callback(null, usr);
         }
     });
 }
@@ -120,7 +124,8 @@ function getUserByUsername(username, callback) {
         if (err) {
             callback(err);
         } else {
-            callback(null, row);
+            const usr = User.loadUserFromDBRecord(row);
+            callback(null, usr);
         }
     });
 }
@@ -134,7 +139,8 @@ async function asyncGetUserByUsername(username) {
             if (err) {
                 reject(err);
             } else {
-                resolve(row);
+                const usr = User.loadUserFromDBRecord(row);
+                resolve(usr);
             }
         });
     });
@@ -155,7 +161,8 @@ function getUserByEmail(email, callback) {
         if (err) {
             callback(err);
         } else {
-            callback(null, row);
+            const usr = User.loadUserFromDBRecord(row);
+            callback(null, usr);
         }
     });
 }
@@ -169,7 +176,8 @@ async function asyncGetUserByEmail(email) {
             if (err) {
                 reject(err);
             } else {
-                resolve(row);
+                const usr = User.loadUserFromDBRecord(row);
+                resolve(usr);
             }
         });
     });
