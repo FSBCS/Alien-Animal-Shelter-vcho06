@@ -3,6 +3,14 @@ const saltRounds = 10;
 
 /**
  * Represents a user in the alien animal shelter system.
+ * @class
+ * @property {string} username - The username of the user.
+ * @property {string} email - The email address of the user.
+ * @property {string} firstName - The first name of the user.
+ * @property {string} lastName - The last name of the user.
+ * @property {Array} favorites - An array of favorite items for the user.
+ * @property {string} password - The (hashed) password of the user.
+ * @property {Array} roles - An array of roles assigned to the user.
  */
 class User {
     
@@ -88,6 +96,14 @@ class User {
     isAdmin() {
         return this.hasRole('admin');
     }
+
+    /**
+     * Adds the 'admin' role to the user's roles array.
+     */
+    setAdmin() {
+        this.roles.push('admin');
+    }
+
 
     verifyPassword(password) {
         return bcrypt.compareSync(password, this.password);
