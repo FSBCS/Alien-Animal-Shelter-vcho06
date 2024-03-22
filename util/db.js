@@ -49,21 +49,17 @@ db.run(`CREATE TABLE IF NOT EXISTS Animals (
 
 /**
  * Inserts a new user into the database.
- * @param {Object} user - The user object containing the user's information.
- * @param {string} user.username - The username of the user.
- * @param {string} user.password - The password of the user.
- * @param {string} user.email - The email of the user.
- * @param {string} user.firstName - The first name of the user.
- * @param {string} user.lastName - The last name of the user.
- * @param {string} user.profilePicture - The URI of the profile picture of the user.
+ * @param {Object} user - The user object containing the user's information. Should be an instance of {@link User}.
+ * @param {function} callback - The callback function to be called after the user has been inserted.
+ * @param {Error} callback.err - An error object if an error occurred during the insertion process, null otherwise.
  */
-function insertUser(user) {
+function insertUser(user, callback=()=>{}) {
     const { username, password, email, firstName, lastName, profilePicture, roles } = user;
     db.run(`INSERT INTO Users (username, password, email, firstName, lastName, profilePicture)
                     VALUES (?, ?, ?, ?, ?, ?)`,
                     [username, password, email, firstName, lastName, profilePicture], function(err) {
         if (err) {
-            console.error(err);
+            callback(err);
         } else {
             const userId = this.lastID;
             if (roles && roles.length > 0) {
@@ -72,7 +68,9 @@ function insertUser(user) {
                                     VALUES (?, ?)`,
                                     [userId, roleId], function(err) {
                         if (err) {
-                            console.error(err);
+                            callback(err);
+                        } else {
+                            callback(null);
                         }
                     });
                 });
@@ -120,6 +118,8 @@ function getUserById(id, callback) {
  * Retrieves a user from the database by their username.
  * @param {string} username - The username of the user to retrieve.
  * @param {function} callback - The callback function to be called with the retrieved user or an error.
+ * @param {Error} callback.err - An error object if an error occurred during the retrieval process, null otherwise.
+ * @param {Object} callback.usr - The retrieved user object from the database.
  */
 function getUserByUsername(username, callback) {
     db.get(`SELECT Users.*, Roles.name AS roleName FROM Users

@@ -43,3 +43,112 @@ You should consider completing the development of this application in the follow
 
 ## Helper Code
 This project contains helper code and documentation contained in the utils folder. This code will be updated as we continue to build the website.
+
+### User class
+
+The User class contains a simple framework for creating and managing user objects. The class is imported using
+
+```javascript
+const User = require('./utils/user');
+```
+
+The class has the following functionality:
+
+- Create a new user object
+- Verify the user's password
+- Check if the user is an admin
+- Add and remove animals from the user's favorites list
+
+See below for a more complete description of each functionality.
+
+#### Create a new user object
+A user object is constructed by "factory" methods called `createNewUser()`. The correct invocation of this function is:
+
+```javascript
+const user = User.createNewUser(username, email, firstName, lastName, password);
+```
+
+Note that the password will be hashed by the user object. The password parameter should be passed as plaintext.
+
+__important__ Do not use the `new` keyword to create a new user object. Always use the `createNewUser()` method.
+
+
+#### Verify the user's password
+
+Passwords stored in the user object are hashed using an opaque algorithm (i.e. you don't know how). To verify that a
+given plaintext password matches the stored password, use the `verifyPassword()` method:
+
+```javascript
+if (user.verifyPassword(password)) {
+    // Passwords match
+} else {
+    // Passwords do not match
+}
+```
+
+#### Check if the user is an admin
+Some users may be designated as administrators. To check if a user is an admin, use the `isAdmin()` method:
+
+```javascript
+if (user.isAdmin()) {
+    // User is an admin
+} else {
+    // User is not an admin
+}
+```
+
+### db Module
+
+The db module contains functions for storing persistent data in an sqlite database. The module is imported using
+
+```javascript
+const db = require('./utils/db');
+```
+
+The module has the following functionality:
+
+- Create the required database and tables
+- Add a new user to the database
+- Retrieve a user from the database
+- Add an animal to the database
+- Retrieve all animals from the database
+
+See below for a more complete description of each functionality.
+
+#### Create the required database and tables
+
+The database and appropriate tables (if they do not exist) are created when the module is imported. The database is stored in a file called `data.db` in the root directory of the project. It is important not to delete, move, or modify this file.
+
+```javascript
+const db = require('./utils/db');
+```
+
+#### Add a new user to the database
+
+To add a user to the database, use the `insertUser()` method. The method takes a user object and a callback function as arguments. The callback function is called with an error object if there is an error, or `null` if the user was successfully added to the database.
+
+```javascript
+db.insertUser(user, (err) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log('User added to database');
+    }
+});
+```
+
+#### Retrieve a user from the database
+
+There are multiple ways to retrieve a user from the database. Most often you will want to get the user by username.
+This is done with the `getUserByUsername()` method. The method takes a username and a callback function as arguments. The callback function is called with an error object and the user object if the user is found. If the user is not found, the user object will be `null`.
+
+```javascript
+db.getUserByUsername(username, (err, user) => {
+    if (err) {
+        console.log(err);
+    } else {
+        // Do something with the user object
+    }
+});
+```
+
