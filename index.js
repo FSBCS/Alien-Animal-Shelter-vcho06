@@ -1,8 +1,9 @@
+require('dotenv').config();
 const express = require('express'); 
 const sqlite3 = require('sqlite3');
 const ejs = require('ejs');
-const User = require('./util/user');
-const db = require('./util/db');
+const User = require('./utils/user');
+const db = require('./utils/db');
 const session = require('express-session');
 const app = express();
 const port = 3000; // We'll run our server on port 3000
@@ -13,12 +14,13 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true }
+    cookie: { secure: process.env.NODE_ENV === 'production'}
 }));
 
 app.get('/', (req, res) => {  //path = everything after '/'
     res.render('signin'); // Look for a 'home.ejs' file
 });
+
 
 app.get('/signup', (req, res) => {
     if (req.session.user) {
@@ -27,6 +29,7 @@ app.get('/signup', (req, res) => {
         res.render('signup');
     }
 });
+
 
 app.get('/signin', (req, res) => {
     if (req.session.user) {
@@ -42,6 +45,13 @@ app.get('/animals', (req, res) => {
 
 app.get('/home', (req, res) => {
     res.render('home');
+});
+
+app.post('/signup', (req, res) => {
+    const { username, email, firstName, lastName, password } = req.body;
+    const user = User.createNewUser(username, email, firstName, lastName, password);
+    db.insertUser(user);
+    res.redirect('/signin');
 });
 
 app.post('/signin', (req, res) => {
@@ -67,12 +77,7 @@ app.post('/signin', (req, res) => {
     }
 });
 
-app.post('/signup', (req, res) => {
-    const { username, email, firstName, lastName, password } = req.body;
-    const user = User.createNewUser(username, email, firstName, lastName, password);
-    db.insertUser(user);
-    res.redirect('/signin');
-});
+
 
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
