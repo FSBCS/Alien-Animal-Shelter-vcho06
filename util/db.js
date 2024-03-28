@@ -48,10 +48,26 @@ db.run(`CREATE TABLE IF NOT EXISTS Animals (
     photoLocation TEXT
 )`);
 
-db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS name TEXT NOT NULL`);
-db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS description TEXT NOT NULL`);
-db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS species TEXT NOT NULL`);
-db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS photoLocation TEXT`);
+//Ensure all animal columns are present.
+const columnsToCheck = [
+    { name: 'species', type: 'TEXT NOT NULL' },
+    { name: 'description', type: 'TEXT NOT NULL' },
+    { name: 'photoLocation', type: 'TEXT' },
+];
+db.all(`PRAGMA table_info(Animals)`, (err, existingColumns) => {
+    if (err) {
+        console.error(err);
+        return;
+    }
+
+    columnsToCheck.forEach(column => {
+        const hasColumn = existingColumns.some(existingColumn => existingColumn.name === column.name);
+        if (!hasColumn) {
+            db.run(`ALTER TABLE Animals ADD COLUMN ${column.name} ${column.type}`);
+        }
+    });
+});
+
 
 /**
  * Inserts a new user into the database.
