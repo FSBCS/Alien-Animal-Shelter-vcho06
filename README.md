@@ -152,3 +152,32 @@ db.getUserByUsername(username, (err, user) => {
 });
 ```
 
+## Session Secrets
+The helper code contains a short function to generate a session secret: `./utils/sessionSecret.js`. This function is used to generate a random string that can be used as a session secret. The function is imported using
+
+```javascript
+const sessionSecret = require('./utils/sessionSecret');
+```
+
+The function is called with no arguments and returns a random string that can be used as a session secret.
+
+```javascript
+const secret = sessionSecret();
+```
+
+### .env File
+You should create a `.env` file in the root directory of your project. This file should contain the following variables:
+
+```plaintext
+SESSION_SECRET=your_session_secret
+```
+
+Replace `your_session_secret` with the output of the `sessionSecret()` function.
+
+To read the session secret in your application, use the `dotenv` package:
+
+```javascript
+require('dotenv').config();
+const sessionSecret = process.env.SESSION_SECRET;
+```
+
