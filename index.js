@@ -23,9 +23,8 @@ app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(bodyParser.json()); // Used to parse JSON bodies
 
 app.get('/', (req, res) => {  //path = everything after '/'
-    res.render('signin'); // Look for a 'home.ejs' file
+    res.render('home'); // Look for a 'home.ejs' file
 });
-
 
 app.get('/signup', (req, res) => {
     if (req.session.user) {
@@ -49,7 +48,7 @@ app.get('/animals', (req, res) => {
 });
 
 app.get('/home', (req, res) => {
-    res.render('home');
+    res.render('home', { user: req.session.user });
 });
 
 app.post('/signup', (req, res) => {

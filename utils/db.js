@@ -48,10 +48,10 @@ db.run(`CREATE TABLE IF NOT EXISTS Animals (
     photoLocation TEXT
 )`);
 
-db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS name TEXT NOT NULL`);
-db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS description TEXT NOT NULL`);
-db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS species TEXT NOT NULL`);
-db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS photoLocation TEXT`);
+// db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS name TEXT NOT NULL`);
+// db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS description TEXT NOT NULL`);
+// db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS species TEXT NOT NULL`);
+// db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS photoLocation TEXT`);
 
 /**
  * Inserts a new user into the database.
