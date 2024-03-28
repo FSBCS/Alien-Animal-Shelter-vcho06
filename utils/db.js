@@ -44,16 +44,23 @@ db.run(`CREATE TABLE IF NOT EXISTS Animals (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
+    species TEXT NOT NULL,
     photoLocation TEXT
 )`);
+
+db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS name TEXT NOT NULL`);
+db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS description TEXT NOT NULL`);
+db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS species TEXT NOT NULL`);
+db.run(`ALTER TABLE Animals ADD COLUMN IF NOT EXISTS photoLocation TEXT`);
 
 /**
  * Inserts a new user into the database.
  * @param {Object} user - The user object containing the user's information. Should be an instance of {@link User}.
- * @param {function} callback - The callback function to be called after the user has been inserted.
+ * @param {function} [callback] - The callback function to be called after the user has been inserted.
+ * @default (err) => { console.log(err) }
  * @param {Error} callback.err - An error object if an error occurred during the insertion process, null otherwise.
  */
-function insertUser(user, callback=()=>{}) {
+function insertUser(user, callback=(err)=>{console.log(err)}) {
     const { username, password, email, firstName, lastName, profilePicture, roles } = user;
     db.run(`INSERT INTO Users (username, password, email, firstName, lastName, profilePicture)
                     VALUES (?, ?, ?, ?, ?, ?)`,
@@ -80,17 +87,53 @@ function insertUser(user, callback=()=>{}) {
 }
 
 /**
+ * Updates a user in the database.
+ * @param {Object} user - The user object containing the updated user information.
+ * @param {Function} [callback] - The callback function to be called after the user is updated. It takes an error parameter.
+ */
+function updateUser(user, callback = (err) => { if (err) console.error(err); }) {
+    const { username, password, email, firstName, lastName, profilePicture, roles } = user;
+    db.run(`UPDATE Users SET username = ?, password = ?, email = ?, firstName = ?, lastName = ?, profilePicture = ?
+                    WHERE id = ?`,
+                    [username, password, email, firstName, lastName, profilePicture, user.id], function(err) {
+        if (err) {
+            callback(err);
+        } else {
+            db.run(`DELETE FROM UserRoles WHERE userId = ?`, [user.id], function(err) {
+                if (err) {
+                    callback(err);
+                } else {
+                    if (roles && roles.length > 0) {
+                        roles.forEach(roleId => {
+                            db.run(`INSERT INTO UserRoles (userId, roleId)
+                                            VALUES (?, ?)`,
+                                            [user.id, roleId], function(err) {
+                                if (err) {
+                                    callback(err);
+                                } else {
+                                    callback(null);
+                                }
+                            });
+                        });
+                    }
+                }
+            });
+        }
+    });
+}
+
+/**
  * Inserts an animal into the database.
  * @param {Object} animal - The animal object to be inserted.
  * @param {string} animal.name - The name of the animal.
  * @param {string} animal.description - The description of the animal.
- * @param {string} animal.photoLocation - The location of the animal's photo.
+ * @param {string} animal.profilePhotoURI- The location of the animal's photo.
  */
 function insertAnimal(animal) {
-    const { name, description, photoLocation } = animal;
+    const { name, description, profilePhotoURI } = animal;
     db.run(`INSERT INTO Animals (name, description, photoLocation)
                     VALUES (?, ?, ?)`,
-                    [name, description, photoLocation]);
+                    [name, description, profilePhotoURI]);
 }
 
 /**
@@ -211,6 +254,7 @@ function getAnimalById(id, callback) {
         if (err) {
             callback(err);
         } else {
+            const animal = new Animal(row.name, row.description, row.species, row.photoLocation);
             callback(null, row);
         }
     });
@@ -226,5 +270,6 @@ module.exports = {
     getUserByUsername,
     asyncGetUserByUsername,
     getUserByEmail,
-    asyncGetUserByEmail
+    asyncGetUserByEmail,
+    updateUser
 };
