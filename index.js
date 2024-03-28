@@ -1,7 +1,8 @@
 require('dotenv').config();
-const express = require('express'); 
+const express = require('express');
+const bodyParser = require('body-parser'); 
 const sqlite3 = require('sqlite3');
-const ejs = require('ejs');
+const ejs = require('ejs'); 
 const User = require('./utils/user');
 const db = require('./utils/db');
 const session = require('express-session');
@@ -10,12 +11,16 @@ const port = 3000; // We'll run our server on port 3000
 
 app.set('view engine', 'ejs'); // Tell Express to use EJS (templating engine)
 
+
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: { secure: process.env.NODE_ENV === 'production'}
 }));
+
+app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(bodyParser.json()); // Used to parse JSON bodies
 
 app.get('/', (req, res) => {  //path = everything after '/'
     res.render('signin'); // Look for a 'home.ejs' file
@@ -51,11 +56,13 @@ app.post('/signup', (req, res) => {
     const { username, email, firstName, lastName, password } = req.body;
     const user = User.createNewUser(username, email, firstName, lastName, password);
     db.insertUser(user);
+    console.log('User created: ', user);
     res.redirect('/signin');
 });
 
 app.post('/signin', (req, res) => {
     const { username, password } = req.body;
+    console.log('Username: ', username);
     db.getUserByUsername(username, callback);
 
     function callback(err, user) {
