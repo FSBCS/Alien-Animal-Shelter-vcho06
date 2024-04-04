@@ -8,14 +8,24 @@
 <body>
 
 <%- include ('./partials/header.ejs') %>
-<form action="/signup" method="POST">
-    <input type="text" name="username" placeholder="username" required>
-    <input type="email" name="email" placeholder="email" required>
-    <input type="firstName" name="firstName" placeholder="firstName" required>
-    <input type="lastName" name="lastName" placeholder="lastName" required>
-    <input type="password" name="password" placeholder="password" required>
-    <button type="submit">Sign Up</button>
-</form>
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <form action="/signup" method="POST" style="display: flex; flex-direction: column; align-items: center;">
+        <h1>Sign Up</h1>
+        <input type="text" name="username" placeholder="username" required>
+        <br style="margin-bottom: 10px;">
+        <input type="email" name="email" placeholder="email" required>
+        <br style="margin-bottom: 10px;">
+        <input type="firstName" name="firstName" placeholder="firstName" required>
+        <br style="margin-bottom: 10px;">
+        <input type="lastName" name="lastName" placeholder="lastName" required>
+        <br style="margin-bottom: 10px;">
+        <input type="password" name="password" placeholder="password" required>
+        <br style="margin-bottom: 10px;">
+        <div style="display: flex; justify-content: center;">
+            <button type="submit">Sign Up</button>
+        </div>
+    </form>
+</div>
 <%- include ('./partials/footer.ejs') %>
 </body>
 </html>

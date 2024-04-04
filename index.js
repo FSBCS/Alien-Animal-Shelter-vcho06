@@ -47,8 +47,19 @@ app.get('/animals', (req, res) => {
     res.render('animals');
 });
 
+app.get('/profile', (req, res) => {
+    if (!req.session.user) {
+        res.redirect('/signin');
+    } else {
+        const user = req.session.user;
+        res.render('profile', { user: user});
+    }
+    
+  
+});
+
 app.get('/home', (req, res) => {
-    res.render('home', { user: req.session.user });
+    res.render('home');
 });
 
 app.post('/signup', (req, res) => {
