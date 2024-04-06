@@ -13,58 +13,63 @@ const db = new sqlite3.Database('data.sqlite');
 const User = require('./user');
 const Animal = require('./animal');
 
-// Create the Users table if it doesn't exist
-db.run(`CREATE TABLE IF NOT EXISTS Users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL,
-    password TEXT NOT NULL,
-    email TEXT NOT NULL,
-    firstName TEXT NOT NULL,
-    lastName TEXT NOT NULL,
-    profilePicture TEXT
-)`);
+db.serialize(() => {
+    // Create the Users table if it doesn't exist
+    db.run(`CREATE TABLE IF NOT EXISTS Users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        password TEXT NOT NULL,
+        email TEXT NOT NULL,
+        firstName TEXT NOT NULL,
+        lastName TEXT NOT NULL,
+        profilePicture TEXT
+    )`);
 
-// Create the Roles table if it doesn't exist
-db.run(`CREATE TABLE IF NOT EXISTS Roles (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
-)`);
+    // Create the Roles table if it doesn't exist
+    db.run(`CREATE TABLE IF NOT EXISTS Roles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL
+    )`);
 
-// Create the UserRoles table if it doesn't exist
-db.run(`CREATE TABLE IF NOT EXISTS UserRoles (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    userId INTEGER NOT NULL,
-    roleId INTEGER NOT NULL,
-    FOREIGN KEY (userId) REFERENCES Users(id),
-    FOREIGN KEY (roleId) REFERENCES Roles(id)
-)`);
+    // Create the UserRoles table if it doesn't exist
+    db.run(`CREATE TABLE IF NOT EXISTS UserRoles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER NOT NULL,
+        roleId INTEGER NOT NULL,
+        FOREIGN KEY (userId) REFERENCES Users(id),
+        FOREIGN KEY (roleId) REFERENCES Roles(id)
+    )`);
 
-// Create the Animals table if it doesn't exist
-db.run(`CREATE TABLE IF NOT EXISTS Animals (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    description TEXT NOT NULL,
-    species TEXT NOT NULL,
-    photoLocation TEXT
-)`);
+    // Create the Animals table if it doesn't exist
+    db.run(`CREATE TABLE IF NOT EXISTS Animals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT NOT NULL,
+        species TEXT NOT NULL,
+        photoLocation TEXT
+    )`);
 
-//Ensure all animal columns are present.
-const columnsToCheck = [
-    { name: 'species', type: 'TEXT NOT NULL' },
-    { name: 'description', type: 'TEXT NOT NULL' },
-    { name: 'photoLocation', type: 'TEXT' },
-];
-db.all(`PRAGMA table_info(Animals)`, (err, existingColumns) => {
-    if (err) {
-        console.error(err);
-        return;
-    }
+    //Ensure all animal columns are present.
+    const columnsToCheck = [
+        { name: 'species', type: 'TEXT NOT NULL' },
+        { name: 'description', type: 'TEXT NOT NULL' },
+        { name: 'photoLocation', type: 'TEXT' },
+    ];
 
-    columnsToCheck.forEach(column => {
-        const hasColumn = existingColumns.some(existingColumn => existingColumn.name === column.name);
-        if (!hasColumn) {
-            db.run(`ALTER TABLE Animals ADD COLUMN ${column.name} ${column.type}`);
+    db.all(`PRAGMA table_info(Animals)`, (err, rows) => {
+        if (err) {
+            console.error(err);
+            return;
         }
+
+        const existingColumnNames = rows.map(row => row.name);
+
+        columnsToCheck.forEach(column => {
+            const hasColumn = existingColumnNames.includes(column.name);
+            if (!hasColumn) {
+                db.run(`ALTER TABLE Animals ADD COLUMN ${column.name} ${column.type}`);
+            }
+        });
     });
 });
 
