@@ -183,7 +183,7 @@ function getUserById(id, callback) {
  * @param {string} username - The username of the user to retrieve.
  * @param {function} callback - The callback function to be called with the retrieved user or an error.
  * @param {Error} callback.err - An error object if an error occurred during the retrieval process, null otherwise.
- * @param {Object} callback.usr - The retrieved user object from the database.
+ * @param {Object} callback.usr - The retrieved user object from the database. Null if no user was found.
  */
 function getUserByUsername(username, callback) {
     db.get(`SELECT Users.*, Roles.name AS roleName FROM Users
@@ -192,6 +192,8 @@ function getUserByUsername(username, callback) {
             WHERE Users.username = ?`, [username], (err, row) => {
         if (err) {
             callback(err);
+        } else if (!row) { // No user found
+            callback();
         } else {
             const usr = User.loadUserFromDBRecord(row);
             callback(null, usr);
