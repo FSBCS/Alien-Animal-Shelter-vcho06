@@ -3,14 +3,6 @@ const saltRounds = 10;
 
 /**
  * Represents a user in the alien animal shelter system.
- * @class
- * @property {string} username - The username of the user.
- * @property {string} email - The email address of the user.
- * @property {string} firstName - The first name of the user.
- * @property {string} lastName - The last name of the user.
- * @property {Array} favorites - An array of favorite items for the user.
- * @property {string} password - The (hashed) password of the user.
- * @property {Array} roles - An array of roles assigned to the user.
  */
 class User {
     
@@ -34,6 +26,7 @@ class User {
         this.password = password;
         this.roles = roles;
         this.profilePicture = null;
+        this.id = null;
     }
 
     /**
@@ -58,7 +51,8 @@ class User {
      * @returns {User} The loaded User object.
      */
     static loadUserFromDBRecord(record) {
-        return new User(record.username, record.email, record.firstName, record.lastName, record.favorites, record.password, record.roles);
+        const usr = new User(record.username, record.email, record.firstName, record.lastName, record.favorites, record.password, record.roles);
+        usr.id = record.id;
     }
 
     /**
@@ -96,14 +90,6 @@ class User {
     isAdmin() {
         return this.hasRole('admin');
     }
-
-    /**
-     * Adds the 'admin' role to the user's roles array.
-     */
-    setAdmin() {
-        this.roles.push('admin');
-    }
-
 
     verifyPassword(password) {
         return bcrypt.compareSync(password, this.password);
