@@ -58,6 +58,14 @@ app.get('/profile', (req, res) => {
   
 });
 
+app.post('/profile', (req, res) => {
+    const user = req.session.user;
+    const { firstName, lastName, email, password } = req.body;
+    db.updateUser(user.id, { firstName, lastName, email, password });
+    res.redirect('/profile');
+});
+
+
 app.get('/home', (req, res) => {
     res.render('home');
 });
