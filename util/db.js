@@ -108,42 +108,6 @@ function insertUser(user, callback=(err)=>{console.log(err)}) {
 }
 
 /**
- * Updates a user in the database.
- * @param {Object} user - The user object containing the updated user information.
- * @param {Function} [callback] - The callback function to be called after the user is updated. It takes an error parameter.
- */
-function updateUser(user, callback = (err) => { if (err) console.error(err); }) {
-    const { username, password, email, firstName, lastName, profilePicture, roles } = user;
-    db.run(`UPDATE Users SET username = ?, password = ?, email = ?, firstName = ?, lastName = ?, profilePicture = ?
-                    WHERE id = ?`,
-                    [username, password, email, firstName, lastName, profilePicture, user.id], function(err) {
-        if (err) {
-            callback(err);
-        } else {
-            db.run(`DELETE FROM UserRoles WHERE userId = ?`, [user.id], function(err) {
-                if (err) {
-                    callback(err);
-                } else {
-                    if (roles && roles.length > 0) {
-                        roles.forEach(roleId => {
-                            db.run(`INSERT INTO UserRoles (userId, roleId)
-                                            VALUES (?, ?)`,
-                                            [user.id, roleId], function(err) {
-                                if (err) {
-                                    callback(err);
-                                } else {
-                                    callback(null);
-                                }
-                            });
-                        });
-                    }
-                }
-            });
-        }
-    });
-}
-
-/**
  * Inserts an animal into the database.
  * @param {Object} animal - The animal object to be inserted.
  * @param {string} animal.name - The name of the animal.
@@ -261,6 +225,66 @@ async function asyncGetUserByEmail(email) {
                 resolve(usr);
             }
         });
+    });
+}
+
+
+/**
+ * Updates a user in the database.
+ * @param {Object} user - The user object containing the updated user information.
+ * @param {Function} [callback] - The callback function to be called after the user is updated. It takes an error parameter.
+ */
+function updateUser(user, callback = (err) => { if (err) console.error(err); }) {
+    if (!user.id) {
+        callback(new Error('User ID is required to update a user.'));
+        return;
+    }
+    const { username, password, email, firstName, lastName, profilePicture, roles } = user;
+    db.run(`UPDATE Users SET username = ?, password = ?, email = ?, firstName = ?, lastName = ?, profilePicture = ?
+                    WHERE id = ?`,
+                    [username, password, email, firstName, lastName, profilePicture, user.id], function(err) {
+        if (err) {
+            callback(err);
+        } else {
+            db.run(`DELETE FROM UserRoles WHERE userId = ?`, [user.id], function(err) {
+                if (err) {
+                    callback(err);
+                } else {
+                    if (roles && roles.length > 0) {
+                        roles.forEach(roleId => {
+                            db.run(`INSERT INTO UserRoles (userId, roleId)
+                                            VALUES (?, ?)`,
+                                            [user.id, roleId], function(err) {
+                                if (err) {
+                                    callback(err);
+                                } else {
+                                    callback(null);
+                                }
+                            });
+                        });
+                    }
+                }
+            });
+        }
+    });
+}
+
+/**
+ * Inserts an animal into the database.
+ * @param {Object} animal - The animal object to be inserted.
+ * @param {function} callback - The callback function to be called after the insertion is complete.
+ *                             It takes an error parameter (if any) as an argument.
+ */
+function insertAnimal(animal, callback = (err) => { console.log(err); }) {
+    const { name, description, species, photoLocation } = animal;
+    db.run(`INSERT INTO Animals (name, description, species, photoLocation)
+                    VALUES (?, ?, ?, ?)`,
+                    [name, description, species, photoLocation], function(err) {
+        if (err) {
+            callback(err);
+        } else {
+            callback(null);
+        }
     });
 }
 
