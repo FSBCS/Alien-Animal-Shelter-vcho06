@@ -53,6 +53,7 @@ class User {
     static loadUserFromDBRecord(record) {
         const usr = new User(record.username, record.email, record.firstName, record.lastName, record.favorites, record.password, record.roles);
         usr.id = record.id;
+        return usr;
     }
 
     /**
