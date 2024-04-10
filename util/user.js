@@ -45,6 +45,15 @@ class User {
     }
 
     /**
+     * Updates the user's password.
+     * @param {string} password - The new password to be set.
+     * @returns {void}
+     */
+    updatePassword(password) {
+        this.password = bcrypt.hashSync(password, saltRounds);
+    }
+
+    /**
      * Loads a user object from a database record.
      *
      * @param {Object} record - The database record containing user information.
