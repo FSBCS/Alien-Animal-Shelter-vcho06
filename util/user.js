@@ -95,21 +95,6 @@ class User {
     verifyPassword(password) {
         return bcrypt.compareSync(password, this.password);
     }
-
-    toJSON() {
-        return {
-            username: this.username,
-            email: this.email,
-            firstName: this.firstName,
-            lastName: this.lastName,
-            favorites: this.favorites,
-            roles: this.roles
-        };
-    }
-
-    static fromJSON(json) {
-        return new User(json.username, json.email, json.firstName, json.lastName, json.favorites, json.password, json.roles);
-    }
 }
 
 module.exports = User;
