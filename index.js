@@ -10,7 +10,7 @@ const app = express();
 const port = 3000; // We'll run our server on port 3000
 
 app.set('view engine', 'ejs'); // Tell Express to use EJS (templating engine)
-
+app.use(express.JSON);
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -58,13 +58,14 @@ app.get('/profile', (req, res) => {
   
 });
 
-app.post('/profile', (req, res) => {
-    const user = req.session.user;
-    const { firstName, lastName, email, password } = req.body;
-    db.updateUser(user.id, { firstName, lastName, email, password });
-    res.redirect('/profile');
-});
 
+app.put('/profile', requireLogin, (req, res) => {
+    const { password } = req.body;
+    let user = User.fromJSON(req.session.user);
+    user.updatePassword(password);
+    db.updateUser(user);
+    res.status(200).send('Password updated');
+});
 
 app.get('/home', (req, res) => {
     res.render('home');

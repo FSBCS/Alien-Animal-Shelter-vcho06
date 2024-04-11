@@ -1,23 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 
 <%- include ('./partials/header.ejs') %>
 <h1>YOUR PROFILE</h1>
-<p>Username: <%= user.username %></p> 
-<p>First Name: <%= user.firstName %></p>
 
-<p>Last Name: <%= user.lastName %></p>
-<form action="/profile" method="POST">
-    <label for="lastName">Change Last Name:</label>
-    <input type="text" id="lastName" name="lastName" value="<%= user.lastName %>">
-    <input type="submit" value="Edit Profile">
-</form>
-<p>Email: <%= user.email%></p>
-<br></br>
+    <p>Username: <%= user.username %></p>
+    <p>First Name: <%= user.firstName %></p>
+    <p>Last Name: <%= user.lastName %></p>
+    <p>Email: <%= user.email %></p>
+    <button id="editButton">Edit Profile</button>
+
+
+
 <%- include ('./partials/footer.ejs') %>
+
+
+
 </body>
 </html>
