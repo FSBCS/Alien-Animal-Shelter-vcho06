@@ -45,6 +45,15 @@ class User {
     }
 
     /**
+     * Updates the user's password.
+     * @param {string} password - The new password to be set.
+     * @returns {void}
+     */
+    updatePassword(password) {
+        this.password = bcrypt.hashSync(password, saltRounds);
+    }
+
+    /**
      * Loads a user object from a database record.
      *
      * @param {Object} record - The database record containing user information.
@@ -94,21 +103,6 @@ class User {
 
     verifyPassword(password) {
         return bcrypt.compareSync(password, this.password);
-    }
-
-    toJSON() {
-        return {
-            username: this.username,
-            email: this.email,
-            firstName: this.firstName,
-            lastName: this.lastName,
-            favorites: this.favorites,
-            roles: this.roles
-        };
-    }
-
-    static fromJSON(json) {
-        return new User(json.username, json.email, json.firstName, json.lastName, json.favorites, json.password, json.roles);
     }
 }
 
