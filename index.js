@@ -10,13 +10,13 @@ const app = express();
 const port = 3000; // We'll run our server on port 3000
 
 app.set('view engine', 'ejs'); // Tell Express to use EJS (templating engine)
-app.use(express.JSON);
+app.use(express.json());
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: process.env.NODE_ENV === 'production'}
+    cookie: { secure: process.env.NODE_ENV == 'production'}
 }));
 
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
@@ -53,18 +53,16 @@ app.get('/profile', (req, res) => {
     } else {
         const user = req.session.user;
         res.render('profile', { user: user});
-    }
-    
-  
+    }  
 });
 
 
 app.put('/profile', requireLogin, (req, res) => {
-    const { password } = req.body;
+    const { username, firstName, lastName, email } = req.body;
     let user = User.fromJSON(req.session.user);
-    user.updatePassword(password);
+    user.updateProfile(username, firstName, lastName, email);
     db.updateUser(user);
-    res.status(200).send('Password updated');
+    res.status(200).send('Profile updated');
 });
 
 app.get('/home', (req, res) => {
@@ -102,6 +100,14 @@ app.post('/signin', (req, res) => {
         }
     }
 });
+
+function requireLogin(req, res, next) {
+    if (req.session.user) {
+        next();
+    } else {
+        res.redirect('/signin');
+    }
+}
 
 
 

@@ -17,8 +17,26 @@
     <p>Last Name: <%= user.lastName %></p>
     <p>Email: <%= user.email %></p>
     <button id="editButton">Edit Profile</button>
+    <script>
+        document.getElementById("editButton").addEventListener("click", function() {
+            document.getElementById("editForm").classList.toggle("hidden");
+        });
 
+    </script>
+    <form id="editForm" class="hidden" action="/profile" method="POST">
+        <input type="text" name="username" placeholder="Username" value="<%= user.username %>">
+        <input type="text" name="firstName" placeholder="First Name" value="<%= user.firstName %>">
+        <input type="text" name="lastName" placeholder="Last Name" value="<%= user.lastName %>">
+        <input type="email" name="email" placeholder="Email" value="<%= user.email %>">
+        <button id="submit">Save Changes</button>
+    </form>
 
+    <script src="updateProfile.js"></script>
+    <script>
+        document.getElementById("submit").addEventListener("click", function() {
+            updateProfile(username, firstName, lastName, email);
+        });
+    </script>
 
 <%- include ('./partials/footer.ejs') %>
 

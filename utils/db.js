@@ -13,7 +13,7 @@ const db = new sqlite3.Database('data.sqlite');
 const User = require('./user');
 const Animal = require('./animal');
 
-db.serialize(() => {
+db.serialize(() => { 
     // Create the Users table if it doesn't exist
     db.run(`CREATE TABLE IF NOT EXISTS Users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
