@@ -44,6 +44,12 @@ class User {
         return new User(username, email, firstName, lastName, [], hashedPassword, ['user']);
     }
 
+    static fromJSON(json) {
+        const user = new User(json.username, json.email, json.firstName, json.lastName, json.favorites, json.password, json.roles);
+        user.id = json.id;
+        return user;
+    }
+
     /**
      * Updates the user's password.
      * @param {string} password - The new password to be set.
