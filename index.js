@@ -12,6 +12,8 @@ const port = 3000; // We'll run our server on port 3000
 app.set('view engine', 'ejs'); // Tell Express to use EJS (templating engine)
 app.use(express.json());
 
+app.use(express.static('public'));
+
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -60,8 +62,12 @@ app.get('/profile', (req, res) => {
 app.put('/profile', requireLogin, (req, res) => {
     const { username, firstName, lastName, email } = req.body;
     let user = User.fromJSON(req.session.user);
-    user.updateProfile(username, firstName, lastName, email);
+    user.username = username;
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.email = email;
     db.updateUser(user);
+    req.session.user = user;
     res.status(200).send('Profile updated');
 });
 
@@ -71,6 +77,14 @@ app.get('/home', (req, res) => {
 
 app.post('/signup', (req, res) => {
     const { username, email, firstName, lastName, password } = req.body;
+
+    const usernameExists = db.getUserByUsername(username);
+    const emailExists = db.getUserByEmail(email);
+
+    if (usernameExists || emailExists) {
+       return res.status(400).send('Username or Email already exists');
+    }
+
     const user = User.createNewUser(username, email, firstName, lastName, password);
     db.insertUser(user);
     console.log('User created: ', user);

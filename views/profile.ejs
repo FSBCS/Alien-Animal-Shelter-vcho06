@@ -23,18 +23,24 @@
         });
 
     </script>
-    <form id="editForm" class="hidden" action="/profile" method="POST">
+    <div id="editForm" class="hidden">
         <input type="text" name="username" placeholder="Username" value="<%= user.username %>">
         <input type="text" name="firstName" placeholder="First Name" value="<%= user.firstName %>">
         <input type="text" name="lastName" placeholder="Last Name" value="<%= user.lastName %>">
         <input type="email" name="email" placeholder="Email" value="<%= user.email %>">
         <button id="submit">Save Changes</button>
-    </form>
+    </div>
 
-    <script src="updateProfile.js"></script>
+    <script src="scripts/updateProfile.js"></script>
     <script>
         document.getElementById("submit").addEventListener("click", function() {
-            updateProfile(username, firstName, lastName, email);
+           console.log ("submit clicked");
+            var username = document.querySelector("input[name='username']").value;
+            var firstName = document.querySelector("input[name='firstName']").value;
+            var lastName = document.querySelector("input[name='lastName']").value;
+            var email = document.querySelector("input[name='email']").value;
+            updateProfile("/profile", username, firstName, lastName, email);
+            console.log ("updateProfile called");
         });
     </script>
 
