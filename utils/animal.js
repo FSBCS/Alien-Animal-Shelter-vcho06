@@ -16,6 +16,18 @@ class Animal {
         this.description = description;
         this.species = species;
         this.profilePhotoUri = profilePhotoUri;
+        this.id = null;
+    }
+
+    /**
+     * Creates an Animal object from a database row.
+     * @param {Object} row - The database row containing the animal information.
+     * @returns {Animal} - The created Animal object.
+     */
+    static loadFromDbRow(row) {
+        const animal = new Animal(row.name, row.description, row.species, row.photoLocation);
+        animal.id = row.id;
+        return animal;
     }
 }
 
