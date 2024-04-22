@@ -10,7 +10,7 @@
  */
 function updateProfile(route, username, firstName, lastName, email) {
     const data = {
-        username: username,
+        username: username, 
         firstName: firstName, 
         lastName: lastName,
         email: email,
