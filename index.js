@@ -123,6 +123,15 @@ function requireLogin(req, res, next) {
     }
 }
 
+app.get('/api/animals', (req, res) => {
+    db.getAllAnimals((err, animals) => {
+        if (err) {
+            res.status(500).send('Error getting animals');
+        } else {
+            res.send(animals);
+        }
+    });
+});
 
 
 app.listen(port, () => {

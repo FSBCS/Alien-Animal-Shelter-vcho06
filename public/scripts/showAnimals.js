@@ -1,42 +1,17 @@
-const Animal = require('./animal');
-const getAnimals = require('./getAnimals');
-
-// showAnimals.js
-
-// Import necessary modules
-
-// Function to create a card for each animal
-function createAnimalCard(animal) {
-    const card = document.createElement('div');
-    card.classList.add('animal-card');
-
-    const name = document.createElement('h2');
-    name.textContent = animal.name;
-    card.appendChild(name);
-
-    const species = document.createElement('p');
-    species.textContent = `Species: ${animal.species}`;
-    card.appendChild(species);
-
-
-    // Add more information as needed
-
-    return card;
-}
-
-// Function to display animals on the animals.ejs page
-function displayAnimals() {
-    const animalContainer = document.querySelector('.animal-container');
-
-    // Retrieve animals from the database
-    const animals = getAnimals();
-
-    // Create a card for each animal and append it to the container
-    animals.forEach((animal) => {
-        const card = createAnimalCard(animal);
-        animalContainer.appendChild(card);
+function loadCards(data) {
+    const baseCard = document.getElementById('baseCard');
+    data.forEach(animal => {
+        const card = baseCard.cloneNode(true);
+        card.id = "animal-" + animal.id;
+        card.querySelector('.card-title').textContent = animal.name;
+        card.querySelector('.card-img-top').src = animal.photoLocation;
+        card.querySelector('.animal-species').textContent = animal.description;
+        card.classList.remove("d-none");
+        baseCard.parentNode.appendChild(card);
     });
 }
 
-// Call the displayAnimals function when the page loads
-window.addEventListener('load', displayAnimals);
+fetch('/api/animals')
+    .then(response => response.json())
+    .then(data => loadCards(data))
+    .catch(error => console.error(error));

@@ -3,8 +3,20 @@
 <head>
 </head>
 <body>
-
 <%- include ('./partials/header.ejs') %>
+<div class="container">
+<div id="base-card" class="card col-lg-4 d-none mx-auto mb-3">
+    <img src="/images/spaceBeaver.png" class="card-img-top" alt="Fluffy">
+    <div class="card-body">
+        <h5 class="card-title"></h5>
+        <p class="card-text animal-species"></p>
+    </div>
+</div>
+</div>
+
+<script src="/public/scripts/showAnimals.js"></script>
+
 <%- include ('./partials/footer.ejs') %>
 </body>
-</html> 
+
+</html>
