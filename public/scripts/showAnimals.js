@@ -1,11 +1,11 @@
 function loadCards(data) {
-    const baseCard = document.getElementById('baseCard');
+    const baseCard = document.getElementById('base-card');
     data.forEach(animal => {
         const card = baseCard.cloneNode(true);
         card.id = "animal-" + animal.id;
         card.querySelector('.card-title').textContent = animal.name;
         card.querySelector('.card-img-top').src = animal.photoLocation;
-        card.querySelector('.animal-species').textContent = animal.description;
+        card.querySelector('.animal-species').textContent = animal.species;
         card.classList.remove("d-none");
         baseCard.parentNode.appendChild(card);
     });
