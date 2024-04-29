@@ -6,6 +6,7 @@ function loadCards(data) {
         card.querySelector('.card-title').textContent = animal.name;
         card.querySelector('.card-img-top').src = animal.photoLocation;
         card.querySelector('.animal-species').textContent = animal.species;
+        card.querySelector('.animal-description').textContent = animal.description;
         card.classList.remove("d-none");
         baseCard.parentNode.appendChild(card);
     });

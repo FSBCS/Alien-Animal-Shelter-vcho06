@@ -1,8 +1,8 @@
 const Animal = require('./animal');
 const DB = require('./db');
 
-const b = new Animal("Squish", "A squishy turtle alien", "Sea Squish", "/images/turtleSquish.jpg");
-DB.insertAnimal(b, (err, animal) => {  
+const c = new Animal("Viola", "A soft curious mini zebra", "Water Zebra", "/images/waterZebra.jpg");
+DB.insertAnimal(c, (err, animal) => {  
     if (err) {
         console.log('Error adding animal: ', err);
     } else {
