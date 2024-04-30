@@ -9,6 +9,7 @@ function loadCards(data) {
         card.querySelector('.animal-description').textContent = animal.description;
         card.classList.remove("d-none");
         baseCard.parentNode.appendChild(card);
+
     });
 }
 
