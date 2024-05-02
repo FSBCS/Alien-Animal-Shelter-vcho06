@@ -133,6 +133,18 @@ app.get('/api/animals', (req, res) => {
     });
 });
 
+app.post('/api/favorites', requireLogin, (req, res) => {
+    const { animalId } = req.body;
+    const user = User.fromJSON(req.session.user);
+
+    if (user.favorites.includes(animalId)) {
+        user.removeFavorite(animalId);
+    } else {
+        user.addFavorite(animalId);
+    }
+    req.session.user = user;
+    req.status(200).send('Favorite updated');
+});
 
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);

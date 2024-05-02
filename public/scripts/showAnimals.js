@@ -8,12 +8,20 @@ function loadCards(data) {
         card.querySelector('.animal-species').textContent = animal.species;
         card.querySelector('.animal-description').textContent = animal.description;
         card.classList.remove("d-none");
+        const likeButton = card.querySelector('.like-button');
+        likeButton.addEventListener('click', function() {
+            toggleFavorite(animal.id);
+        });
         baseCard.parentNode.appendChild(card);
 
     });
+}
+function addLikeButtonListeners() {
+   
 }
 
 fetch('/api/animals')
     .then(response => response.json())
     .then(data => loadCards(data))
+    .then(() => addLikeButtonListeners())
     .catch(error => console.error(error));

@@ -47,6 +47,9 @@ class User {
     static fromJSON(json) {
         const user = new User(json.username, json.email, json.firstName, json.lastName, json.favorites, json.password, json.roles);
         user.id = json.id;
+        if (!json.favorites) {
+            user.favorites = [];
+        }
         return user;
     }
 
