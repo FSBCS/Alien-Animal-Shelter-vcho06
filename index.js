@@ -143,7 +143,7 @@ app.post('/api/favorites', requireLogin, (req, res) => {
         user.addFavorite(animalId);
     }
     req.session.user = user;
-    req.status(200).send('Favorite updated');
+    res.status(200).json({ message: 'Favorite updated' });
 });
 
 app.listen(port, () => {

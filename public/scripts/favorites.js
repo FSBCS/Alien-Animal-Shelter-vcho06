@@ -8,7 +8,8 @@ function toggleFavorite(animalId) {
     })
     .then(response => response.json())
     .then(data => console.log(data))
-    .catch((error) => {
+    .catch((error) => {  
         console.error('Error:', error);
     });
 }
+

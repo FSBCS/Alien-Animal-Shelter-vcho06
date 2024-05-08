@@ -1,3 +1,5 @@
+
+
 function loadCards(data) {
     const baseCard = document.getElementById('base-card');
     data.forEach(animal => {
@@ -16,12 +18,10 @@ function loadCards(data) {
 
     });
 }
-function addLikeButtonListeners() {
-   
-}
+
+
 
 fetch('/api/animals')
     .then(response => response.json())
     .then(data => loadCards(data))
-    .then(() => addLikeButtonListeners())
     .catch(error => console.error(error));
