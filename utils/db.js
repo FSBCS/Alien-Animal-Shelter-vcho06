@@ -299,8 +299,8 @@ class DB {
                                                 [user.id, roleId], function(err) {
                                     if (err) {
                                         callback(err);
-                                    } else {
-                                        callback(null);
+                                    } else { 
+                                        callback(null); 
                                     }
                                 });
                             });
