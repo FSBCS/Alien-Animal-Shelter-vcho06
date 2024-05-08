@@ -1,3 +1,5 @@
+const async = require('async');
+
 /**
  * @file Database Utility Script
  * @description This script provides utility functions for interacting with the database.
@@ -39,6 +41,15 @@ db.serialize(() => {
         FOREIGN KEY (roleId) REFERENCES Roles(id)
     )`);
 
+    // Create the user favorites table if it doesn't exist
+    db.run(`CREATE TABLE IF NOT EXISTS UserFavorites (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER NOT NULL,
+        animalId INTEGER NOT NULL,
+        FOREIGN KEY (userId) REFERENCES Users(id),
+        FOREIGN KEY (animalId) REFERENCES Animals(id)
+    )`);
+
     // Create the Animals table if it doesn't exist
     db.run(`CREATE TABLE IF NOT EXISTS Animals (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -78,6 +89,46 @@ class DB {
         console.log('DB constructor');
     }
 
+    static #insertRoles(userId, roles) {
+        if (roles && roles.length > 0) {
+            let promises = roles.map(roleId => {
+                return new Promise((resolve, reject) => {
+                    db.run(`INSERT INTO UserRoles (userId, roleId)
+                                VALUES (?, ?)`,
+                                [userId, roleId], function(err) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+            });
+            return Promise.all(promises);
+        }
+        return Promise.resolve();
+    }
+
+    static #insertFavorites(userId, favorites) {
+        if (favorites && favorites.length > 0) {
+            let promises = favorites.map(favoriteId => {
+                return new Promise((resolve, reject) => {
+                    db.run(`INSERT INTO UserFavorites (userId, animalId)
+                                VALUES (?, ?)`,
+                                [userId, favoriteId], function(err) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+            });
+            return Promise.all(promises);
+        }
+        return Promise.resolve();
+    }
+
     static #completeUserInsertion(user, callback) {
         const { username, password, email, firstName, lastName, profilePicture, roles } = user;
         db.run(`INSERT INTO Users (username, password, email, firstName, lastName, profilePicture)
@@ -87,19 +138,7 @@ class DB {
                 callback(err);
             } else {
                 const userId = this.lastID;
-                if (roles && roles.length > 0) {
-                    roles.forEach(roleId => {
-                        db.run(`INSERT INTO UserRoles (userId, roleId)
-                                        VALUES (?, ?)`,
-                                        [userId, roleId], function(err) {
-                            if (err) {
-                                callback(err);
-                            } else {
-                                callback(null);
-                            }
-                        });
-                    });
-                }
+                DB.#insertRoles(userId, roles, callback);
             }
         });
     }
@@ -148,38 +187,44 @@ class DB {
             });
     }
 
-    /**
-     * Updates a user in the database.
-     * @param {Object} user - The user object containing the updated user information.
-     * @param {Function} [callback] - The callback function to be called after the user is updated. It takes an error parameter.
-     */
-    static updateUser(user, callback = (err) => { if (err) console.error(err); }) {
-        const { username, password, email, firstName, lastName, profilePicture, roles } = user;
-        db.run(`UPDATE Users SET username = ?, password = ?, email = ?, firstName = ?, lastName = ?, profilePicture = ?
-                        WHERE id = ?`,
-                        [username, password, email, firstName, lastName, profilePicture, user.id], function(err) {
+    static #updateRoles(userId, roles) {
+        return new Promise((resolve, reject) => {
+            db.run(`DELETE FROM UserRoles WHERE userId = ?`, [userId], function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    DB.#insertRoles(userId, roles, function(err) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    static #updateFavorites(userId, favorites, callback) {
+        db.run(`DELETE FROM UserFavorites WHERE userId = ?`, [userId], function(err) {
             if (err) {
                 callback(err);
             } else {
-                db.run(`DELETE FROM UserRoles WHERE userId = ?`, [user.id], function(err) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        if (roles && roles.length > 0) {
-                            roles.forEach(roleId => {
-                                db.run(`INSERT INTO UserRoles (userId, roleId)
-                                                VALUES (?, ?)`,
-                                                [user.id, roleId], function(err) {
-                                    if (err) {
-                                        callback(err);
-                                    } else {
-                                        callback(null);
-                                    }
-                                });
-                            });
-                        }
-                    }
-                });
+                DB.#insertFavorites(userId, favorites, callback);
+            }
+        });
+    }
+
+    //update the user
+    static updateUser(user, callback = (err) => { if (err) console.error(err); }) {
+        const { id, username, password, email, firstName, lastName, profilePicture, favorites } = user;
+        db.run(`UPDATE Users SET username = ?, password = ?, email = ?, firstName = ?, lastName = ?, profilePicture = ?
+                        WHERE id = ?`,
+                        [username, password, email, firstName, lastName, profilePicture, id], function(err) {
+            if (err) {
+                callback(err);
+            } else {
+                DB.#updateFavorites(id, favorites, callback);
             }
         });
     }
@@ -192,9 +237,11 @@ class DB {
      * @param {Object} callback.row - The retrieved user object from the database.
      */
     static getUserById(id, callback) {
-        db.get(`SELECT Users.*, Roles.name AS roleName FROM Users
+        db.get(`SELECT Users.*, Roles.name AS roleName, Animals.name AS favoriteName FROM Users
                 LEFT JOIN UserRoles ON Users.id = UserRoles.userId
                 LEFT JOIN Roles ON UserRoles.roleId = Roles.id
+                LEFT JOIN UserFavorites ON Users.id = UserFavorites.userId
+                LEFT JOIN Animals ON UserFavorites.animalId = Animals.id
                 WHERE Users.id = ?`, [id], (err, row) => {
             if (err) {
                 callback(err);
@@ -213,9 +260,11 @@ class DB {
      * @param {Object} callback.usr - The retrieved user object from the database. Null if no user was found.
      */
     static getUserByUsername(username, callback) {
-        db.get(`SELECT Users.*, Roles.name AS roleName FROM Users
+        db.get(`SELECT Users.*, Roles.name AS roleName, Animals.name AS favoriteName FROM Users
                 LEFT JOIN UserRoles ON Users.id = UserRoles.userId
                 LEFT JOIN Roles ON UserRoles.roleId = Roles.id
+                LEFT JOIN UserFavorites ON Users.id = UserFavorites.userId
+                LEFT JOIN Animals ON UserFavorites.animalId = Animals.id
                 WHERE Users.username = ?`, [username], (err, row) => {
             if (err) {
                 callback(err);
@@ -236,10 +285,12 @@ class DB {
      * @param {Object} callback.usr - The retrieved db record as a User object.
      */
     static getUserByEmail(email, callback) {
-        db.get(`SELECT Users.*, Roles.name AS roleName FROM Users
-                LEFT JOIN UserRoles ON Users.id = UserRoles.userId
-                LEFT JOIN Roles ON UserRoles.roleId = Roles.id
-                WHERE Users.email = ?`, [email], (err, row) => {
+        db.get(`SELECT Users.*, Roles.name AS roleName, Animals.name AS favoriteName FROM Users
+            LEFT JOIN UserRoles ON Users.id = UserRoles.userId
+            LEFT JOIN Roles ON UserRoles.roleId = Roles.id
+            LEFT JOIN UserFavorites ON Users.id = UserFavorites.userId
+            LEFT JOIN Animals ON UserFavorites.animalId = Animals.id
+            WHERE Users.email = ?`, [email], (err, row) => {
             if (err) {
                 callback(err);
             } else {
@@ -267,47 +318,6 @@ class DB {
                     resolve(usr);
                 }
             });
-        });
-    }
-
-
-    /**
-     * Updates a user in the database.
-     * @param {Object} user - The user object containing the updated user information.
-     * @param {Function} [callback] - The callback function to be called after the user is updated. It takes an error parameter.
-     */
-    static updateUser(user, callback = (err) => { if (err) console.error(err); }) {
-        if (!user.id) {
-            callback(new Error('User ID is required to update a user.'));
-            return;
-        }
-        const { username, password, email, firstName, lastName, profilePicture, roles } = user;
-        db.run(`UPDATE Users SET username = ?, password = ?, email = ?, firstName = ?, lastName = ?, profilePicture = ?
-                        WHERE id = ?`,
-                        [username, password, email, firstName, lastName, profilePicture, user.id], function(err) {
-            if (err) {
-                callback(err);
-            } else {
-                db.run(`DELETE FROM UserRoles WHERE userId = ?`, [user.id], function(err) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        if (roles && roles.length > 0) {
-                            roles.forEach(roleId => {
-                                db.run(`INSERT INTO UserRoles (userId, roleId)
-                                                VALUES (?, ?)`,
-                                                [user.id, roleId], function(err) {
-                                    if (err) {
-                                        callback(err);
-                                    } else { 
-                                        callback(null); 
-                                    }
-                                });
-                            });
-                        }
-                    }
-                });
-            }
         });
     }
 
