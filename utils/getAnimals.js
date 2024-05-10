@@ -8,4 +8,4 @@ DB.getAllAnimals((err, animals) => {
     } else {
         console.log(animals);
     }
-});
+}); 

@@ -104,6 +104,7 @@ app.post('/signin', (req, res) => {
             if (user) {
                 if (user.verifyPassword(password)) {
                     req.session.user = user;
+                    
                     res.redirect('/home');
                 } else {
                     res.redirect('/signin');
@@ -143,6 +144,7 @@ app.post('/api/favorites', requireLogin, (req, res) => {
         user.addFavorite(animalId);
     }
     req.session.user = user;
+    db.updateUser(user);
     res.status(200).json({ message: 'Favorite updated' });
 });
 
