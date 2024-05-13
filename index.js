@@ -140,8 +140,10 @@ app.post('/api/favorites', requireLogin, (req, res) => {
 
     if (user.favorites.includes(animalId)) {
         user.removeFavorite(animalId);
+        
     } else {
         user.addFavorite(animalId);
+       
     }
     req.session.user = user;
     db.updateUser(user);
