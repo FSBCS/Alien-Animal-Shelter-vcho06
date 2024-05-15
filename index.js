@@ -143,12 +143,13 @@ app.post('/api/favorites', requireLogin, (req, res) => {
         
     } else {
         user.addFavorite(animalId);
-       
     }
+    
     req.session.user = user;
     db.updateUser(user);
     res.status(200).json({ message: 'Favorite updated' });
 });
+
 
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
