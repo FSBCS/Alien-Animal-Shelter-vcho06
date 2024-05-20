@@ -5,6 +5,20 @@
         .hidden {
             display: none;
         }
+        .profile {
+            text-align: center;
+            font-size: 20px;
+            border-radius: 3px;
+            border-color: black;
+            border-top: 2px;
+            padding: 20px;
+            background-color: white;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+        body {
+            background-color: #4e7865a9;
+        }
     </style>
     
 </head>
@@ -12,7 +26,7 @@
 
 <%- include ('./partials/header.ejs') %>
 
-
+<div class = "profile">
 <h1>YOUR PROFILE</h1>
 
     <p>Username: <%= user.username %></p>
@@ -46,7 +60,7 @@
             console.log ("updateProfile called");
         });
     </script>
-
+</div>
 <%- include ('./partials/footer.ejs') %>
 
 
